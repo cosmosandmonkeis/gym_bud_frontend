@@ -1,25 +1,31 @@
-import logo from './logo.svg';
+import React from 'react'
+import {BrowserRouter as Router, Route} from 'react-router-dom'
+import 'semantic-ui-css/semantic.min.css'
+
 import './App.css';
+import {MobileViewProvider} from "./context/mobile";
+import {AuthProvider} from "./context/auth";
+import MenuBar from "./Components/MenuBar";
+import AuthRoute from "./Components/AuthRoute";
+import Footer from "./Components/Footer";
+import Login from "./Pages/login";
+import Register from "./Pages/register";
+import Home from "./Pages/home";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+      <MobileViewProvider>
+        <AuthProvider>
+          <Router>
+            <MenuBar/>
+            <Route exact path='/' component={Home}/>
+            <AuthRoute exact path='/login' component={Login}/>
+            <AuthRoute exact path='/register' component={Register}/>
+            <Footer/>
+          </Router>
+        </AuthProvider>
+      </MobileViewProvider>
+  )
 }
 
 export default App;

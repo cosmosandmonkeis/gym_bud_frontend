@@ -3,11 +3,31 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import {setContext} from "@apollo/client/link/context";
+import {ApolloClient, ApolloProvider, createHttpLink, InMemoryCache} from "@apollo/client";
+
+const httpLink = createHttpLink({
+    uri: "http://localhost:5000"
+})
+
+const authLink = setContext(() => {
+    const token = localStorage.getItem("jwtToken")
+    return {
+        headers: {
+            Authorization: token ? `Bearer ${token}` : ''
+        }
+    }
+})
+
+const client = new ApolloClient({
+    link: authLink.concat(httpLink),
+    cache: new InMemoryCache(),
+})
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <ApolloProvider client={client}>
+        <App/>
+    </ApolloProvider>,
   document.getElementById('root')
 );
 
