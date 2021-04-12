@@ -11,21 +11,23 @@ import Footer from "./Components/Footer";
 import Login from "./Pages/login";
 import Register from "./Pages/register";
 import Home from "./Pages/home";
+import GettingStarted from "./Pages/gettingstarted";
 
 function App() {
-  return (
-      <MobileViewProvider>
-        <AuthProvider>
-          <Router>
-            <MenuBar/>
-            <Route exact path='/' component={Home}/>
-            <AuthRoute exact path='/login' component={Login}/>
-            <AuthRoute exact path='/register' component={Register}/>
-            <Footer/>
-          </Router>
-        </AuthProvider>
-      </MobileViewProvider>
-  )
+    return (
+        <MobileViewProvider>
+            <AuthProvider>
+                <Router>
+                    <MenuBar/>
+                    <Route exact path='/' component={Home}/>
+                    <Route exact path='/profilesetup' component={GettingStarted}/>
+                    <AuthRoute exact path='/login' component={Login}/>
+                    <AuthRoute exact path='/register' component={Register}/>
+                    <Footer/>
+                </Router>
+            </AuthProvider>
+        </MobileViewProvider>
+    )
 }
 
 export default App;
