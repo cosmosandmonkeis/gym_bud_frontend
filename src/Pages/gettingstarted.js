@@ -2,7 +2,6 @@ import React, {useContext, useEffect, useState} from 'react'
 import gql from "graphql-tag";
 import {useMutation} from "@apollo/client";
 import {Button, Container, Form, Header} from "semantic-ui-react";
-import {useForm} from "../util/hooks";
 import DisplayErrorGroup from "../Components/DisplayErrorGroup";
 import {AuthContext} from "../context/auth";
 
@@ -17,9 +16,9 @@ function GettingStarted(props) {
 
     const initialState = {
         userid: '',
-        genderPreference: 'male',
-        goalPreference: 'bodybuilding',
-        frequencyPreference: 1
+        genderPreference: '',
+        goalPreference: '',
+        frequencyPreference: null
     }
 
     const genderOptions = [
@@ -47,10 +46,12 @@ function GettingStarted(props) {
     ]
 
     const {user} = useContext(AuthContext)
-    const {onSubmit} = useForm(setUserPref, initialState)
     const [values, setValues] = useState(initialState);
     const [errors, setErrors] = useState({})
 
+    const onSubmit = () => {
+        setUserPref()
+    }
     const onChange = (event, result) => {
         const {name, value} = result || event.target;
         setValues({...values, [name]: value});
@@ -69,12 +70,19 @@ function GettingStarted(props) {
     })
 
     function setUserPref() {
-        console.log(values)
+        if (values.genderPreference.length === 0)
+            setErrors({genderPreference: "Can't be empty"})
+        if (values.goalPreference.length === 0)
+            setErrors({goalPreference: "Can't be empty"})
+        if (values.frequencyPreference === null)
+            setErrors({frequencyPreference: "Can't be empty"})
+
         setPreference()
     }
 
     useEffect(() => {
-        setValues({userid: user.id})
+        if (user)
+            setValues({...values, userid: user.id})
     }, [user])
 
     return (
@@ -138,7 +146,7 @@ const SET_USER_PREF = gql`
                 frequencyPreference: $frequencyPreference
             }
         ) {
-            genderPreference 
+            genderPreference
         }
     }
 `
