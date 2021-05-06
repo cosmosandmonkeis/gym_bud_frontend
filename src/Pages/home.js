@@ -5,7 +5,7 @@ import {Button, ButtonContent, Container, Icon} from "semantic-ui-react";
 function Home(props) {
 
     const changeRoute = () => {
-        props.history.push('/profilesetup')
+        props.history.push('/profile')
     }
 
     return (

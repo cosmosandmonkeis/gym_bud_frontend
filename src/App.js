@@ -20,7 +20,7 @@ function App() {
                 <Router>
                     <MenuBar/>
                     <Route exact path='/' component={Home}/>
-                    <Route exact path='/profilesetup' component={GettingStarted}/>
+                    <Route exact path='/profile' component={GettingStarted}/>
                     <AuthRoute exact path='/login' component={Login}/>
                     <AuthRoute exact path='/register' component={Register}/>
                     <Footer/>
