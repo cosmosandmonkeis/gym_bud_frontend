@@ -1,9 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react'
 import gql from "graphql-tag";
-import {useMutation} from "@apollo/client";
-import {Button, Container, Form, Header} from "semantic-ui-react";
+import {useMutation, useQuery} from "@apollo/client";
+import {Button, Container, Dropdown, Form, Header} from "semantic-ui-react";
 import DisplayErrorGroup from "../Components/DisplayErrorGroup";
 import {AuthContext} from "../context/auth";
+import {useForm} from "../util/hooks";
 
 function GettingStarted(props) {
 
@@ -15,27 +16,40 @@ function GettingStarted(props) {
                 * */
 
     const initialState = {
-        userid: '',
-        genderPreference: '',
+        timeAvailability:'',
+        gymName: '',
+        genderPreference:'',
         goalPreference: '',
-        frequencyPreference: null
+        frequencyPreference: 0
     }
+
+    const timeOptions = [
+        {key: "1", text: "Morning (9AM - 12PM)", value: "morning"},
+        {key: "2", text: "Noon (12PM - 3PM)", value: "noon"},
+        {key: "3", text: "Afternoon (3PM - 6PM)", value: "afternoon"},
+        {key: "4", text: "Evening (6PM - 8PM)", value: "evening"},
+        {key: "5", text: "Night (8PM - 12AM)", value: "night"},
+    ]
+
+    const gymOptions = [
+        {key: "1", text: "Calpoly Rec Center", value: "calpoly_rec"},
+    ]
 
     const genderOptions = [
         {key: "1", text: "Male", value: "male"},
         {key: "2", text: "Female", value: "female"},
         {key: "3", text: "No Preference", value: "any"},
-        {key: "4", text: "Non-Binary", value: "non-binary"},
+        {key: "4", text: "Other", value: "other"},
     ]
 
-    const goalPreference = [
+    const goalOptions = [
         {key: "1", text: "Bodybuilding", value: "bodybuilding"},
         {key: "2", text: "Calisthenics", value: "calisthenics"},
         {key: "3", text: "Yoga/Pilates", value: "yoga/pilates"},
         {key: "4", text: "Other", value: "other"},
     ]
 
-    const frequencyPreference = [
+    const frequencyOptions = [
         {key: "1", text: "1", value: 1},
         {key: "2", text: "2", value: 2},
         {key: "3", text: "3", value: 3},
@@ -46,107 +60,114 @@ function GettingStarted(props) {
     ]
 
     const {user} = useContext(AuthContext)
-    const [values, setValues] = useState(initialState);
+
+    const {onChange, onSubmit, values} = useForm(changeExtraFields, initialState)
     const [errors, setErrors] = useState({})
 
-    const onSubmit = () => {
-        setUserPref()
-    }
-    const onChange = (event, result) => {
-        const {name, value} = result || event.target;
-        setValues({...values, [name]: value});
-    };
-
-    const [setPreference, {loading}] = useMutation(SET_USER_PREF, {
+    const [updateExtraFields, {loading}] = useMutation(SETEXTRAUSERFIELDS, {
         update(_, data) {
-
-            // props.history.push('/match')
+            props.history.push('/')
         },
         onError(err) {
-            // setErrors(err.graphQLErrors[0].extensions.exception.errors)
             console.log(err)
+            setErrors(err.graphQLErrors[0].extensions.exception.errors)
         },
-        variables: values
+        variables: {
+            username: user.username,
+            ...values
+        }
     })
 
-    function setUserPref() {
-        if (values.genderPreference.length === 0)
-            setErrors({genderPreference: "Can't be empty"})
-        if (values.goalPreference.length === 0)
-            setErrors({goalPreference: "Can't be empty"})
-        if (values.frequencyPreference === null)
-            setErrors({frequencyPreference: "Can't be empty"})
-
-        setPreference()
+    function changeExtraFields() {
+        console.log({
+            username: user.username,
+            ...values
+        })
+        updateExtraFields()
     }
-
-    useEffect(() => {
-        if (user)
-            setValues({...values, userid: user.id})
-    }, [user])
 
     return (
         <Container>
-            <Header>Get Started</Header>
+            <Header>Getting Started</Header>
             <Form onSubmit={onSubmit} noValidate className={loading ? 'loading' : ''}>
-                <Form.Dropdown
+                <Dropdown
+                    label='When?'
+                    placeholder='When?...'
+                    name='timeAvailability'
+                    onChange={onChange}
+                    options={timeOptions}
+                    selection
+                    fluid
+                />
+                <Dropdown
+                    label='Where?'
+                    placeholder='Where?...'
+                    name='gymName'
+                    onChange={onChange}
+                    options={gymOptions}
+                    selection
+                    fluid
+                />
+                <Dropdown
                     label='Gender Preference?'
                     placeholder='Gender Preference?...'
                     name='genderPreference'
-                    value={values.genderPreference}
-                    error={!!errors.genderPreference}
                     onChange={onChange}
                     options={genderOptions}
                     selection
+                    fluid
                 />
-                <Form.Dropdown
+                <Dropdown
                     label='Goal Preference?'
                     placeholder='Goal Preference?...'
                     name='goalPreference'
-                    type='goalPreference'
-                    value={values.goalPreference}
-                    error={!!errors.goalPreference}
                     onChange={onChange}
-                    options={goalPreference}
+                    options={goalOptions}
                     selection
+                    fluid
                 />
-                <Form.Dropdown
-                    label='Frequency Preference?'
-                    placeholder='Frequency Preference?...'
+                <Dropdown
+                    label='How Often?'
+                    placeholder='How Often?...'
                     name='frequencyPreference'
-                    type='frequencyPreference'
-                    value={values.frequencyPreference}
-                    error={!!errors.frequencyPreference}
                     onChange={onChange}
-                    options={frequencyPreference}
+                    options={frequencyOptions}
                     selection
+                    fluid
                 />
                 <Button type='submit' primary>
                     Set My Preferences!
                 </Button>
             </Form>
-            <DisplayErrorGroup errors={errors}/>
         </Container>
-
     )
 }
 
-const SET_USER_PREF = gql`
-    mutation setAUsersPreferences(
-        $userid: ID!
-        $genderPreference: String
-        $goalPreference: String
+const SETEXTRAUSERFIELDS = gql`
+    mutation setExtraUserFields(
+        $username: String,
+        $timeAvailability: String,
+        $gymName: String,
+        $genderPreference: String,
+        $goalPreference: String,
         $frequencyPreference: Int
     ) {
-        setAUsersPreferences(
-            preferenceInput: {
-                userid: $userid,
-                genderPreference: $genderPreference,
-                goalPreference: $goalPreference,
+        setExtraUserFields (
+            extraFields: {
+                username: $username
+                timeAvailability: $timeAvailability
+                gymName: $gymName
+                genderPreference: $genderPreference
+                goalPreference: $goalPreference
                 frequencyPreference: $frequencyPreference
             }
         ) {
+            username
+            timeAvailability
+            gymName
             genderPreference
+            goalPreference
+            frequencyPreference
         }
     }
 `

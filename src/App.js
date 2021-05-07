@@ -12,6 +12,7 @@ import Login from "./Pages/login";
 import Register from "./Pages/register";
 import Home from "./Pages/home";
 import GettingStarted from "./Pages/gettingstarted";
+import ProtectRoute from "./util/ProtectRoute";
 
 function App() {
     return (
@@ -20,7 +21,7 @@ function App() {
                 <Router>
                     <MenuBar/>
                     <Route exact path='/' component={Home}/>
-                    <Route exact path='/profile' component={GettingStarted}/>
+                    <ProtectRoute exact path='/profile' component={GettingStarted}/>
                     <AuthRoute exact path='/login' component={Login}/>
                     <AuthRoute exact path='/register' component={Register}/>
                     <Footer/>
